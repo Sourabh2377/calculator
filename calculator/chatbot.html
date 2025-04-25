@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot with OTP Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #343541;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: #444654;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        .hidden {
+            display: none;
+        }
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #565869;
+            background: #40414f;
+            color: #ffffff;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #565869;
+            border-radius: 5px;
+            background: #40414f;
+            color: white;
+        }
+        .btn {
+            padding: 10px;
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-container">
+        <h2>Login with Mobile Number</h2>
+        <input type="text" id="mobile" placeholder="Enter your mobile number">
+        <button class="btn" onclick="sendOTP()">Send OTP</button>
+        <p id="error-message" style="color:red;"></p>
+    </div>
+    
+    <div class="container hidden" id="otp-container">
+        <h2>Enter OTP</h2>
+        <input type="text" id="otp" placeholder="Enter OTP">
+        <button class="btn" onclick="verifyOTP()">Verify OTP</button>
+        <p id="otp-timer" style="color:yellow;"></p>
+        <p id="otp-error-message" style="color:red;"></p>
+    </div>
+    
+    <div class="container hidden" id="chat-container">
+        <h2>Hi! Chatbot here, What’s on your mind today?</h2>
+        <div class="chat-box" id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Type a message...">
+        <button class="btn" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        let generatedOTP;
+        let otpValid = false;
+        let otpTimer;
+        
+        function sendOTP() {
+            let mobile = document.getElementById("mobile").value;
+            let errorMessage = document.getElementById("error-message");
+            let mobileRegex = /^[0-9]{10}$/;
+            
+            if (mobileRegex.test(mobile)) {
+                generatedOTP = Math.floor(1000 + Math.random() * 9000); // Generate 4-digit OTP
+                alert("Your OTP is: " + generatedOTP); // Mock OTP display (use SMS API in real cases)
+                document.getElementById("login-container").style.display = "none";
+                document.getElementById("otp-container").style.display = "block";
+                otpValid = true;
+                startOTPTimer();
+            } else {
+                errorMessage.textContent = "Please enter a valid 10-digit mobile number.";
+            }
+        }
+        
+        function startOTPTimer() {
+            let timeLeft = 30;
+            document.getElementById("otp-timer").textContent = `OTP expires in ${timeLeft} seconds`;
+            
+            otpTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("otp-timer").textContent = `OTP expires in ${timeLeft} seconds`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(otpTimer);
+                    otpValid = false;
+                    document.getElementById("otp-timer").textContent = "OTP expired. Please request a new one.";
+                }
+            }, 1000);
+        }
+        
+        function verifyOTP() {
+            let userOTP = document.getElementById("otp").value;
+            let otpErrorMessage = document.getElementById("otp-error-message");
+            
+            if (!otpValid) {
+                otpErrorMessage.textContent = "OTP has expired. Please request a new one.";
+                return;
+            }
+            
+            if (userOTP == generatedOTP) {
+                clearInterval(otpTimer);
+                document.getElementById("otp-container").style.display = "none";
+                document.getElementById("chat-container").style.display = "block";
+            } else {
+                otpErrorMessage.textContent = "Invalid OTP. Please try again.";
+            }
+        }
+    </script>
+</body>
+</html>
